@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from bot.state import user_state
 from analytics.db import SessionLocal
 from analytics.models import Listing
+from analytics.exporter import generate_excel_report
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -47,10 +48,12 @@ async def analytics(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response += f"- {l.title} — {l.price}₽ ({l.area} м²)\n"
         await update.message.reply_text(response)
     else:
-        await update.message.reply_text("🙁 Пока нет данных по этому адресу (заглушка).")
+        await update.message.reply_text("🙁 Пока нет данных по этому адресу.")
 
     # Попытка отправить файл аналитики
     try:
-        await update.message.reply_document(document=open("reports/analytics_template.xlsx", "rb"))
-    except Exception:
-        await update.message.reply_text("❌ Не удалось найти файл аналитики.")
+        # Генерация Excel-файла
+        file_path = generate_excel_report()
+        await update.message.reply_document(document=open(file_path, "rb"))
+    except Exception as e:
+        await update.message.reply_text(f"❌ Не удалось отправить файл.")
