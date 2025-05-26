@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  title: НедвижИмба API
+  version: 1.0.0
+  description: API для агрегатора недвижимости
+
+servers:
+  - url: https://api.nedvizhimba.ru/v1
+
+paths:
+  /listings:
+    get:
+      summary: Получить список объявлений
+      parameters:
+        - in: query
+          name: city
+          schema:
+            type: string
+          description: Город
+        - in: query
+          name: district
+          schema:
+            type: string
+          description: Район
+        - in: query
+          name: min_price
+          schema:
+            type: number
+        - in: query
+          name: max_price
+          schema:
+            type: number
+        - in: query
+          name: rooms
+          schema:
+            type: integer
+        - in: query
+          name: scam
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
+  /subscriptions:
+    post:
+      summary: Создать подписку
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        '201':
+          description: Подписка создана
+
+    get:
+      summary: Получить все подписки пользователя
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription'
+
+  /analytics/report:
+    get:
+      summary: Получить Excel-файл с аналитикой
+      responses:
+        '200':
+          description: XLSX report
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+        platform:
+          type: string
+        title:
+          type: string
+        address:
+          type: string
+        district:
+          type: string
+        price:
+          type: number
+        area:
+          type: number
+        floor:
+          type: integer
+        rooms:
+          type: integer
+        scam_flag:
+          type: boolean
+
+    Subscription:
+      type: object
+      properties:
+        user_id:
+          type: string
+        city:
+          type: string
+        district:
+          type: string
+        min_price:
+          type: number
+        max_price:
+          type: number
+        rooms:
+          type: integer
